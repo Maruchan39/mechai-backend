@@ -1,4 +1,4 @@
-const getMockChatbotResponse = () => {
+export const getMockChatbotResponse = () => {
   const randomIndex = Math.floor(Math.random() * chatbotResponses.length);
 
   return {
@@ -116,5 +116,3 @@ const mockConversation = [
     author: 'chatbot'
   }
 ];
-
-module.exports = { getMockChatbotResponse };
