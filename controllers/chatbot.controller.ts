@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
 import { HfInference } from "@huggingface/inference";
+import { requireEnv } from "../utils/env";
 
-const accessToken = process.env.HF_ACCESS_TOKEN;
-
-if (!accessToken) {
-    throw new Error("Hugging Face access token is missing. Please check your .env file.");
-  }
+const accessToken = requireEnv('HF_ACCESS_TOKEN');
 
 const hf = new HfInference(accessToken);
 
