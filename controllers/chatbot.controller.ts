@@ -26,20 +26,20 @@ Regular oil changes help extend the life of your engine and improve fuel efficie
 
 export const getChatbotResponse = async (req: Request, res: Response) => {
   try {
-    const  { question } = req.body;
+    const { text } = req.body;
 
-    console.log(question);
+    console.log(text);
     
 
     const robertaResponse = await hf.questionAnswering({
       model: "deepset/roberta-base-squad2",
       inputs: {
-        question,
+        question: text,
         context: oilChangeContext,
       },
     });
 
-    res.status(200).json({ response: robertaResponse });
+    res.status(200).json({ text: robertaResponse.answer, author: 'chatbot' });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "An error occurred while processing your request." });
