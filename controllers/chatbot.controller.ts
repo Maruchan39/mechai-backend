@@ -2,46 +2,65 @@ import { Request, Response } from "express";
 import { HfInference } from "@huggingface/inference";
 import { requireEnv } from "../utils/env";
 
-const accessToken = requireEnv('HF_ACCESS_TOKEN');
+const accessToken = requireEnv("HF_ACCESS_TOKEN");
+
+type ChatbotMessage = {
+  text: string;
+  author: "chatbot";
+};
+
+type UserMessage = {
+  text: string;
+  author: "user";
+};
 
 const hf = new HfInference(accessToken);
 
 const oilChangeContext = `
-Changing the oil in your car is an essential part of vehicle maintenance that helps ensure the engine runs smoothly and efficiently. Here’s a step-by-step guide to changing your car’s oil:  
+Automobilio aliejaus keitimas yra esminė transporto priemonės priežiūros dalis, kuri padeda užtikrinti, kad variklis veiktų sklandžiai ir efektyviai. Štai žingsnis po žingsnio instrukcija, kaip pakeisti automobilio aliejų:
 
-1. Gather Supplies: You will need new oil (check your owner’s manual for the correct type and amount), a new oil filter, a wrench, an oil filter wrench, a drain pan, a funnel, and gloves.  
+1. Paruoškite reikmenis: Jums reikės naujo aliejaus (patikrinkite savo automobilio vadove tinkamą tipą ir kiekį), naujo aliejaus filtro, veržliaraktės, aliejaus filtro veržliaraktės, nuotėkio indo, piltuvo ir pirštinių.
 
-2. Prepare the Car: Park your car on a flat surface and engage the parking brake. If necessary, lift the car using a jack and secure it with jack stands. Allow the engine to cool if it has been running.  
+2. Paruoškite automobilį: Pastatykite automobilį ant lygaus paviršiaus ir įjunkite stovėjimo stabdį. Jei reikia, pakelkite automobilį naudodami domkratą ir pritvirtinkite jį stovais. Leiskite varikliui atvėsti, jei jis buvo įjungtas.
 
-3. Drain the Old Oil: Locate the oil drain plug underneath the car. Place the drain pan beneath the plug, then use a wrench to remove the plug and let the old oil drain completely.  
+3. Nusausinkite seną aliejų: Raskite aliejaus nutekėjimo angą po automobiliu. Padėkite nuotėkio indą po angą, tada naudokite veržliaraktę, kad atsuktųte angą ir leiskite senam aliejui visiškai nutekėti.
 
-4. Replace the Oil Filter: Use an oil filter wrench to remove the old oil filter. Before installing the new filter, apply a small amount of new oil to the gasket of the new filter to ensure a proper seal. Screw the new filter into place by hand, tightening it securely.  
+4. Pakeiskite aliejaus filtrą: Naudokite aliejaus filtro veržliaraktę, kad išsuktumėte seną aliejaus filtrą. Prieš įstatydami naują filtrą, užtepkite nedidelį kiekį naujo aliejaus ant naujo filtro tarpiklio, kad užtikrintumėte tinkamą sandarumą. Įsukite naują filtrą rankomis, stipriai priverždami.
 
-5. Refill with New Oil: Once the old oil has drained and the new filter is installed, replace the drain plug and tighten it. Use a funnel to pour the new oil into the engine through the oil filler cap. Check the oil level using the dipstick to ensure you’ve added the correct amount.  
+5. Pilkit naują aliejų: Kai senas aliejus nusausintas ir naujas filtras įstatytas, uždėkite nutekėjimo angą ir priveržkite ją. Naudokite piltuvą, kad įpiltumėte naują aliejų į variklį per aliejaus pildymo angą. Patikrinkite aliejaus lygį naudodami aliejaus meškerėlę, kad įsitikintumėte, jog įpylėte tinkamą kiekį.
 
-6. Dispose of Old Oil: Properly dispose of the old oil and filter at a recycling center or auto parts store.  
+6. Išmeskite seną aliejų: Tinkamai išmeskite seną aliejų ir filtrą perdirbimo centre arba automobilių detalių parduotuvėje.
 
-Regular oil changes help extend the life of your engine and improve fuel efficiency. Most manufacturers recommend changing the oil every 3,000 to 7,500 miles, depending on the vehicle and driving conditions.  
+Reguliarus aliejaus keitimas padeda pailginti variklio tarnavimo laiką ir pagerinti kuro sąnaudas. Dauguma gamintojų rekomenduoja keisti aliejų kas 3 000 iki 7 500 mylių, priklausomai nuo transporto priemonės ir vairavimo sąlygų.
 `;
 
-export const getChatbotResponse = async (req: Request, res: Response) => {
+export const getChatbotResponse = async (
+  req: Request<{}, {}, UserMessage>,
+  res: Response
+) => {
   try {
     const { text } = req.body;
 
     console.log(text);
-    
 
     const robertaResponse = await hf.questionAnswering({
-      model: "deepset/roberta-base-squad2",
+      model: "timpal0l/mdeberta-v3-base-squad2",
       inputs: {
         question: text,
         context: oilChangeContext,
       },
     });
 
-    res.status(200).json({ text: robertaResponse.answer, author: 'chatbot' });
+    const chatbotResponse: ChatbotMessage = {
+      text: robertaResponse.answer,
+      author: "chatbot",
+    };
+
+    res.status(200).json(chatbotResponse);
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ error: "An error occurred while processing your request." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
   }
 };
