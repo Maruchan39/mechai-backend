@@ -30,13 +30,8 @@ export const getChatbotResponse = async (
       },
     });
 
-    console.log(llamaResponse);
-
     const responseLines = llamaResponse["generated_text"].split("\n");
-    const answerLines = responseLines
-      .slice(1)
-      .filter((line) => line.trim() !== "")
-      .join("\n");
+    const answerLines = responseLines[1];
 
     const chatbotResponse: ChatbotMessage = {
       text: answerLines,
