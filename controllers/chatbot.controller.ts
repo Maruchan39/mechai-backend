@@ -31,8 +31,8 @@ export const getChatbotResponse = async (
     });
 
     const responseLines = llamaResponse["generated_text"].split("\n");
+
     const answerLines = responseLines
-      .slice(1)
       .filter((line) => line.trim() !== "")
       .join("\n");
 
