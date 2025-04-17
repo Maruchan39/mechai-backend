@@ -1,4 +1,3 @@
-// routes/chatbot.routes.ts
 import express from "express";
 import { getChatbotResponse } from "../controllers/chatbot.controller";
 
