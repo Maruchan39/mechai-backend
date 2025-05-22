@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
-import { textGeneration } from "@huggingface/inference";
+import { InferenceClient } from "@huggingface/inference";
 import { requireEnv } from "../utils/env";
 
 const accessToken = requireEnv("HF_ACCESS_TOKEN");
+
+const client = new InferenceClient(accessToken);
 
 type ChatbotMessage = {
   text: string;
@@ -21,25 +23,25 @@ export const getChatbotResponse = async (
   try {
     const { text } = req.body;
 
-    const llamaResponse = await textGeneration({
-      accessToken: accessToken,
-      model: "meta-llama/Llama-3.2-3B-Instruct",
-      inputs: text,
-      parameters: {
-        max_length: 100,
-      },
+    const chatCompletion = await client.chatCompletion({
+      provider: "novita",
+      model: "deepseek-ai/DeepSeek-V3-0324",
+      messages: [
+        {
+          role: "user",
+          content: text,
+        },
+      ],
     });
 
-    const responseLines = llamaResponse["generated_text"].split("\n");
-
-    const answerLines = responseLines
-      .filter((line) => line.trim() !== "")
-      .join("\n");
-
     const chatbotResponse: ChatbotMessage = {
-      text: answerLines,
+      text:
+        chatCompletion.choices[0].message.content ||
+        "Sorry, I have encountered while fetching the answer",
       author: "chatbot",
     };
+
+    console.log(chatCompletion.choices[0].message);
 
     res.status(200).json(chatbotResponse);
   } catch (error) {
