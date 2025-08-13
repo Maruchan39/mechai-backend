@@ -1,8 +1,9 @@
-import express from "express";
+import { Router } from "express";
 import { getChatbotResponse } from "../controllers/chatbot.controller";
+import { authenticate } from "../middleware/auth.middleware";
 
-const router = express.Router();
+const router = Router();
 
-router.post("/chatbot", getChatbotResponse);
+router.post("/chatbot", authenticate, getChatbotResponse);
 
 export default router;
